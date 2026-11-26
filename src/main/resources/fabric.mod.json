@@ -1,0 +1,23 @@
+{
+	"schemaVersion": 1,
+	"id": "knockbackdisplay",
+	"version": "${version}",
+	"name": "Knockback Display",
+	"description": "Shows the Knockback enchantment level (as a Roman numeral) on items in your hotbar and inventory.",
+	"authors": ["You"],
+	"license": "MIT",
+	"icon": "assets/knockbackdisplay/icon.png",
+	"environment": "client",
+	"entrypoints": {
+		"eagerlib": ["com.kbdisplay.KbSettings"]
+	},
+	"mixins": [
+		{ "config": "knockbackdisplay.client.mixins.json", "environment": "client" }
+	],
+	"depends": {
+		"fabricloader": ">=0.20.1",
+		"minecraft": "${minecraft_dep}",
+		"java": ">=${java_version}",
+		"eagerlib": "${eagerlib_dep}"
+	}
+}

@@ -1,0 +1,16 @@
+tasks.register('buildAll') {
+	group = 'build'
+	description = 'Builds this mod for every supported Minecraft version into dist/.'
+	def mods = subprojects.findAll { !it.path.startsWith(':eagerlib') && it.parent == rootProject }
+	dependsOn mods.collect { "${it.path}:build" }
+	doLast {
+		mods.each { p ->
+			copy {
+				from p.layout.buildDirectory.dir('libs')
+				into file('dist')
+				include '*.jar'
+				exclude '*-sources.jar'
+			}
+		}
+	}
+}

@@ -1,0 +1,3 @@
+[submodule "eagerlib"]
+	path = eagerlib
+	url = https://github.com/sniper6h2/EagerLib.git

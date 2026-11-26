@@ -1,0 +1,66 @@
+def eagerProps = new Properties()
+rootProject.file('eagerlib/eagerlib.properties').withInputStream { eagerProps.load(it) }
+
+version = "${rootProject.knockback_display_version}+mc${project.minecraft_version}"
+group = 'com.kbdisplay'
+
+base {
+	archivesName = 'knockback-display'
+}
+
+def mod = buildscript.sourceFile.parentFile
+def javaVersion = (project.java_version as String).toInteger()
+def obf = project.findProperty('obfuscated') == 'true'
+
+sourceSets {
+	main {
+		java.srcDirs += new File(mod, 'src/main/java')
+		project.variants.split(',').each { java.srcDirs += new File(mod, "variants/${it.trim()}/java") }
+		resources.srcDirs += new File(mod, 'src/main/resources')
+	}
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	if (obf) {
+		mappings loom.officialMojangMappings()
+		modImplementation "net.fabricmc:fabric-loader:${rootProject.loader_version}"
+		implementation project(path: ":eagerlib:${project.minecraft_version}", configuration: "namedElements")
+	} else {
+		implementation "net.fabricmc:fabric-loader:${rootProject.loader_version}"
+		implementation project(":eagerlib:${project.minecraft_version}")
+	}
+}
+
+processResources {
+	def props = [
+		version      : project.version,
+		minecraft_dep: project.minecraft_dep,
+		java_version : project.java_version,
+		mixin_compat : "JAVA_${project.java_version}",
+		eagerlib_dep : ">=${eagerProps.eagerlib_version}",
+	]
+	inputs.properties props
+	filesMatching(['fabric.mod.json', '*.mixins.json']) {
+		expand props
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = javaVersion
+	it.options.encoding = 'UTF-8'
+}
+
+java {
+	sourceCompatibility = JavaVersion.toVersion(javaVersion)
+	targetCompatibility = JavaVersion.toVersion(javaVersion)
+}
+
+jar {
+	from(new File(mod, 'LICENSE')) {
+		rename { "${it}_knockback-display" }
+	}
+}
+
+ext.eagerModId = 'knockbackdisplay'
+apply from: rootProject.file('eagerlib/testing/testclient.gradle')

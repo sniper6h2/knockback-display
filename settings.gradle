@@ -1,0 +1,24 @@
+pluginManagement {
+	repositories {
+		maven { name = 'Fabric'; url = 'https://maven.fabricmc.net/' }
+		mavenCentral()
+		gradlePluginPortal()
+	}
+	plugins {
+		id 'net.fabricmc.fabric-loom' version "${loom_version}"
+		id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
+	}
+}
+
+rootProject.name = 'knockback-display'
+
+if (!file('eagerlib/common.gradle').exists()) {
+	throw new GradleException('EagerLib is missing. Run: git submodule update --init')
+}
+
+['1.21', '1.21.4', '1.21.6', '1.21.8', '1.21.11', '26.1', '26.2', '26.3'].each { mc ->
+	include ":eagerlib:$mc"
+	project(":eagerlib:$mc").projectDir = file("eagerlib/versions/$mc")
+	include ":$mc"
+	project(":$mc").projectDir = file("versions/$mc")
+}
